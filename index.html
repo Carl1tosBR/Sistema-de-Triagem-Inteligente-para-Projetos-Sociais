@@ -426,6 +426,35 @@
     text-align: center;
   }
 
+  .team-card-filler {
+    background: var(--green-glow);
+    border: 1px dashed var(--green-dim);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 32px 28px;
+    text-align: center;
+  }
+
+  .team-card-filler .filler-icon { font-size: 2rem; }
+
+  .team-card-filler .filler-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .team-card-filler .filler-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 160px;
+  }
+
   .team-avatar {
     width: 56px;
     height: 56px;
@@ -609,16 +638,135 @@
     text-align: right;
   }
 
-  @media (max-width: 900px) {
-    nav { padding: 16px 24px; }
+  @media (max-width: 768px) {
+    /* NAV */
+    nav { padding: 14px 20px; }
     .nav-links { display: none; }
-    .hero, section { padding-left: 24px; padding-right: 24px; }
-    .stats { padding: 60px 24px; }
-    .problem-grid, .features-grid { grid-template-columns: 1fr; }
-    .team-grid { grid-template-columns: repeat(2, 1fr); }
-    footer { flex-direction: column; gap: 16px; text-align: center; }
-    .footer-info { text-align: center; }
-    .divider { margin: 0 24px; }
+    .nav-badge { font-size: 0.65rem; padding: 3px 10px; }
+
+    /* HERO */
+    .hero {
+      min-height: 100svh;
+      padding: 100px 20px 60px;
+      justify-content: flex-end;
+    }
+    .hero-eyebrow { font-size: 0.65rem; margin-bottom: 20px; }
+    .hero-eyebrow::before { width: 24px; }
+    .hero-title { font-size: clamp(2.4rem, 10vw, 3.5rem); margin-bottom: 8px; }
+    .hero-subtitle { font-size: clamp(1.4rem, 6vw, 2rem); margin-bottom: 24px; }
+    .hero-desc { font-size: 0.9rem; margin-bottom: 32px; max-width: 100%; }
+    .hero-ctas { flex-direction: column; gap: 12px; }
+    .btn-primary, .btn-outline { width: 100%; text-align: center; padding: 14px 20px; }
+    .glow-orb { width: 300px; height: 300px; right: -80px; top: 20%; }
+
+    /* BENEFITS */
+    .stats {
+      padding: 0;
+      grid-template-columns: 1fr 1fr;
+    }
+    .stat-item { padding: 28px 20px; }
+    .stat-num { font-size: 1.6rem !important; }
+
+    /* SECTIONS */
+    section { padding: 64px 20px; }
+    .section-tag { font-size: 0.65rem; }
+    .section-title { font-size: clamp(1.6rem, 6vw, 2.2rem); margin-bottom: 14px; }
+    .section-body { font-size: 0.875rem; margin-bottom: 36px; max-width: 100%; }
+
+    /* PROBLEM GRID */
+    .problem-grid { grid-template-columns: 1fr; }
+    .problem-card { padding: 28px 20px; }
+
+    /* FEATURES */
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card { padding: 28px 20px; }
+
+    /* PRIORITY DEMO */
+    .priority-demo { padding: 24px 20px; max-width: 100%; }
+    .priority-label { font-size: 0.68rem; width: 60px; }
+    .priority-pct { font-size: 0.68rem; }
+
+    /* COMPARISON TABLE — stack as cards */
+    .comparison-table thead { display: none; }
+    .comparison-table, .comparison-table tbody,
+    .comparison-table tr, .comparison-table td { display: block; width: 100%; }
+    .comparison-table tr {
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      padding: 16px;
+      background: var(--card);
+    }
+    .comparison-table tr:hover td { background: transparent; }
+    .comparison-table td {
+      border: none;
+      padding: 4px 0;
+      font-size: 0.85rem;
+    }
+    .comparison-table td:first-child { font-size: 0.95rem; margin-bottom: 8px; }
+    .comparison-table td::before {
+      content: attr(data-label);
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    /* TIMELINE */
+    .timeline { padding-left: 20px; }
+    .timeline-item { padding: 24px 0 24px 24px; }
+    .timeline-title { font-size: 0.95rem; }
+    .timeline-desc { font-size: 0.82rem; }
+
+    /* TEAM */
+    .team-grid { grid-template-columns: 1fr; }
+    .team-card { padding: 24px 16px; }
+    .team-card-filler {
+      background: var(--green-glow);
+      border: 1px dashed var(--green-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .team-card-filler .filler-icon { font-size: 1.6rem; }
+    .team-card-filler .filler-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--green);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .team-card-filler .filler-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .team-avatar { width: 48px; height: 48px; font-size: 1.1rem; }
+    .team-name { font-size: 0.78rem; }
+
+    /* DIVIDER */
+    .divider { margin: 0 20px; }
+
+    /* FOOTER */
+    footer {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+      padding: 32px 20px;
+    }
+    .footer-info { text-align: center; font-size: 0.75rem; }
+  }
+
+  @media (max-width: 380px) {
+    .hero-title { font-size: 2rem; }
+    .stats { grid-template-columns: 1fr; }
+    .team-grid { grid-template-columns: 1fr; }
   }
 
   /* Animations */
@@ -825,31 +973,31 @@
       <tbody>
         <tr>
           <td><strong>Salesforce Nonprofit Cloud</strong></td>
-          <td style="color:var(--muted); font-size:0.85rem;">Plataforma robusta para gestão de doações, voluntários e atendimentos</td>
-          <td><span class="tag-x">✗ Não</span></td>
-          <td><span class="tag-x">✗ Complexo e caro</span></td>
-          <td><span class="tag-x">✗ Genérico</span></td>
+          <td data-label="O que faz" style="color:var(--muted); font-size:0.85rem;">Plataforma robusta para gestão de doações, voluntários e atendimentos</td>
+          <td data-label="Triagem automática"><span class="tag-x">✗ Não</span></td>
+          <td data-label="Acessível p/ pequenas ONGs"><span class="tag-x">✗ Complexo e caro</span></td>
+          <td data-label="Foco social específico"><span class="tag-x">✗ Genérico</span></td>
         </tr>
         <tr>
           <td><strong>Be My Eyes</strong></td>
-          <td style="color:var(--muted); font-size:0.85rem;">Conecta voluntários a pessoas com deficiência visual</td>
-          <td><span class="tag-x">✗ Não</span></td>
-          <td><span class="tag-check">✓ Sim</span></td>
-          <td><span class="tag-x">✗ Só deficiência visual</span></td>
+          <td data-label="O que faz" style="color:var(--muted); font-size:0.85rem;">Conecta voluntários a pessoas com deficiência visual</td>
+          <td data-label="Triagem automática"><span class="tag-x">✗ Não</span></td>
+          <td data-label="Acessível p/ pequenas ONGs"><span class="tag-check">✓ Sim</span></td>
+          <td data-label="Foco social específico"><span class="tag-x">✗ Só deficiência visual</span></td>
         </tr>
         <tr>
           <td><strong>Airtable (ONGs)</strong></td>
-          <td style="color:var(--muted); font-size:0.85rem;">Planilha avançada para organização de dados e solicitações</td>
-          <td><span class="tag-x">✗ Não</span></td>
-          <td><span class="tag-check">✓ Parcialmente</span></td>
-          <td><span class="tag-x">✗ Genérico</span></td>
+          <td data-label="O que faz" style="color:var(--muted); font-size:0.85rem;">Planilha avançada para organização de dados e solicitações</td>
+          <td data-label="Triagem automática"><span class="tag-x">✗ Não</span></td>
+          <td data-label="Acessível p/ pequenas ONGs"><span class="tag-check">✓ Parcialmente</span></td>
+          <td data-label="Foco social específico"><span class="tag-x">✗ Genérico</span></td>
         </tr>
         <tr style="background: var(--green-glow);">
           <td><strong style="color: var(--green);">ReliefSys ✦</strong></td>
-          <td style="color:var(--text); font-size:0.85rem;">Sistema de triagem inteligente focado em projetos sociais</td>
-          <td><span class="tag-check">✓ Sim</span></td>
-          <td><span class="tag-check">✓ Sim</span></td>
-          <td><span class="tag-check">✓ Sim</span></td>
+          <td data-label="O que faz" style="color:var(--text); font-size:0.85rem;">Sistema de triagem inteligente focado em projetos sociais</td>
+          <td data-label="Triagem automática"><span class="tag-check">✓ Sim</span></td>
+          <td data-label="Acessível p/ pequenas ONGs"><span class="tag-check">✓ Sim</span></td>
+          <td data-label="Foco social específico"><span class="tag-check">✓ Sim</span></td>
         </tr>
       </tbody>
     </table>
@@ -916,8 +1064,30 @@
         <div class="team-avatar">👤</div>
         <div class="team-name">Davi dos Santos Rodrigues Pedra</div>
       </div>
+
     </div>
   </section>
+
+  <!-- BACK TO TOP -->
+  <div style="display:flex; justify-content:center; padding: 32px 0; position:relative; z-index:1;">
+    <a href="#" style="
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 8px 20px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s, border-color 0.2s;
+    " onmouseover="this.style.color='var(--green)';this.style.borderColor='var(--green-dim)'"
+       onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">
+      ↑ Voltar ao topo
+    </a>
+  </div>
 
 </main>
 
