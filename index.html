@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReliefSys — Sistema de Triagem Inteligente</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f0d;
+    --surface: #111812;
+    --card: #161e18;
+    --border: #1e2b20;
+    --green: #3dff7a;
+    --green-dim: #1a5c30;
+    --green-glow: rgba(61,255,122,0.12);
+    --text: #e8f0ea;
+    --muted: #6b7d6e;
+    --accent: #a8ff78;
+    --red: #ff5e5e;
+    --yellow: #ffd166;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(61,255,122,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61,255,122,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(10,15,13,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--green);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-logo span { color: var(--muted); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    background: var(--green-glow);
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 48px 80px;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--green);
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    line-height: 1.05;
+    max-width: 800px;
+    margin-bottom: 12px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--green);
+  }
+
+  .hero-subtitle {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    color: var(--muted);
+    line-height: 1.1;
+    margin-bottom: 36px;
+  }
+
+  .hero-desc {
+    max-width: 520px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: var(--bg);
+    padding: 14px 32px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  }
+
+  .btn-primary:hover { background: var(--accent); transform: translateY(-2px); }
+
+  .btn-outline {
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 32px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .btn-outline:hover { border-color: var(--green); color: var(--green); }
+
+  /* Glow orb */
+  .glow-orb {
+    position: absolute;
+    right: -100px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(61,255,122,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* STATS */
+  .stats {
+    position: relative;
+    z-index: 1;
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-item {
+    background: var(--bg);
+    padding: 40px 36px;
+  }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 3rem;
+    color: var(--green);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* SECTION */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 48px;
+  }
+
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+
+  .section-body {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.8;
+    max-width: 600px;
+    margin-bottom: 60px;
+  }
+
+  /* PROBLEM */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    margin-top: 60px;
+  }
+
+  .problem-card {
+    background: var(--card);
+    padding: 40px;
+  }
+
+  .problem-card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    margin-bottom: 16px;
+    letter-spacing: 0.15em;
+  }
+
+  .problem-card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .problem-card-text {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .feature-card {
+    background: var(--card);
+    padding: 40px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--green);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .feature-card:hover { background: var(--surface); }
+  .feature-card:hover::after { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--green-dim);
+    background: var(--green-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+    color: var(--green);
+  }
+
+  .feature-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .feature-text {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  /* COMPARISON */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .comparison-table th {
+    text-align: left;
+    padding: 16px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comparison-table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .comparison-table tr:hover td { background: var(--surface); }
+
+  .tag-check {
+    display: inline-block;
+    background: var(--green-glow);
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    border-radius: 2px;
+    margin-right: 4px;
+  }
+
+  .tag-x {
+    display: inline-block;
+    background: rgba(255,94,94,0.08);
+    color: var(--red);
+    border: 1px solid rgba(255,94,94,0.2);
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    border-radius: 2px;
+  }
+
+  /* TEAM */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .team-card {
+    background: var(--card);
+    padding: 32px 28px;
+    text-align: center;
+  }
+
+  .team-avatar {
+    width: 56px;
+    height: 56px;
+    background: var(--green-glow);
+    border: 1px solid var(--green-dim);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--green);
+    margin: 0 auto 16px;
+  }
+
+  .team-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .team-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 32px 0 32px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 38px;
+    width: 9px;
+    height: 9px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--green-dim);
+  }
+
+  .timeline-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+
+  .timeline-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  .timeline-desc {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--green);
+  }
+
+  .footer-info {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Priority indicator */
+  .priority-demo {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-top: 48px;
+    max-width: 560px;
+  }
+
+  .priority-demo-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .priority-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .priority-row:last-child { border-bottom: none; }
+
+  .priority-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-critical { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .dot-high { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+  .dot-medium { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dot-low { background: var(--muted); }
+
+  .priority-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    width: 80px;
+    color: var(--muted);
+  }
+
+  .priority-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .priority-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  .fill-critical { background: var(--red); width: 95%; }
+  .fill-high { background: var(--yellow); width: 72%; }
+  .fill-medium { background: var(--green); width: 50%; }
+  .fill-low { background: var(--muted); width: 28%; }
+
+  .priority-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    width: 36px;
+    text-align: right;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero, section { padding-left: 24px; padding-right: 24px; }
+    .stats { padding: 60px 24px; }
+    .problem-grid, .features-grid { grid-template-columns: 1fr; }
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+    .footer-info { text-align: center; }
+    .divider { margin: 0 24px; }
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow { animation: fadeUp 0.6s ease forwards; }
+  .hero-title { animation: fadeUp 0.6s 0.1s ease both; }
+  .hero-subtitle { animation: fadeUp 0.6s 0.2s ease both; }
+  .hero-desc { animation: fadeUp 0.6s 0.3s ease both; }
+  .hero-ctas { animation: fadeUp 0.6s 0.4s ease both; }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse-dot 1.5s infinite;
+    margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Relief<span>Sys</span></div>
+  <ul class="nav-links">
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#solucao">Solução</a></li>
+    <li><a href="#comparativo">Comparativo</a></li>
+    <li><a href="#equipe">Equipe</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+  <div class="nav-badge"><span class="live-dot"></span>ReliefSys</div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="glow-orb"></div>
+
+    <h1 class="hero-title">Sistema de Triagem <em>Inteligente</em></h1>
+    <p class="hero-subtitle">para Projetos Sociais</p>
+    <p class="hero-desc">Uma solução computacional que organiza e prioriza demandas em ONGs e projetos sociais, classificando solicitações por urgência e impacto de forma automatizada.</p>
+    <div class="hero-ctas">
+      <a href="#solucao" class="btn-primary">Ver a Solução</a>
+      <a href="#equipe" class="btn-outline">Conhecer a Equipe</a>
+    </div>
+  </div>
+
+  <!-- BENEFITS -->
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-num" style="font-size:2rem;">⚡</span>
+      <div class="feature-title" style="margin: 10px 0 8px; font-size:1rem;">Agilidade</div>
+      <span class="stat-label">Redução drástica no tempo de triagem manual, com respostas mais rápidas para quem mais precisa.</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" style="font-size:2rem;">🎯</span>
+      <div class="feature-title" style="margin: 10px 0 8px; font-size:1rem;">Precisão</div>
+      <span class="stat-label">Classificação baseada em critérios objetivos, eliminando erros humanos na priorização de demandas.</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" style="font-size:2rem;">🌱</span>
+      <div class="feature-title" style="margin: 10px 0 8px; font-size:1rem;">Impacto Social</div>
+      <span class="stat-label">Mais pessoas atendidas com os mesmos recursos, maximizando o alcance dos projetos sociais.</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" style="font-size:2rem;">🔒</span>
+      <div class="feature-title" style="margin: 10px 0 8px; font-size:1rem;">Organização</div>
+      <span class="stat-label">Centralização de todas as demandas em um único sistema, com histórico e rastreabilidade completos.</span>
+    </div>
+  </div>
+
+  <!-- PROBLEMA -->
+  <section id="problema">
+    <div class="section-tag">// 01 — Problemática</div>
+    <h2 class="section-title">O problema que queremos resolver</h2>
+    <p class="section-body">A crescente demanda por serviços prestados por organizações sociais exige maior eficiência na gestão de recursos. Muitas ONGs enfrentam dificuldades sérias na organização das solicitações recebidas, resultando em atrasos e no atendimento inadequado de casos urgentes.</p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-card-num">// CAUSA 01</div>
+        <h3 class="problem-card-title">Falta de organização das solicitações</h3>
+        <p class="problem-card-text">As organizações recebem demandas por múltiplos canais sem um sistema centralizado e estruturado para gerenciá-las, gerando caos operacional.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-num">// CAUSA 02</div>
+        <h3 class="problem-card-title">Atendimento inadequado de urgências</h3>
+        <p class="problem-card-text">Sem priorização automática, casos críticos podem ficar em fila junto com demandas simples, comprometendo vidas e a efetividade da organização.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-num">// EFEITO 01</div>
+        <h3 class="problem-card-title">Desperdício de recursos limitados</h3>
+        <p class="problem-card-text">A gestão ineficiente gera retrabalho, distribuição desigual de esforços e subutilização dos recursos humanos e financeiros disponíveis.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card-num">// EFEITO 02</div>
+        <h3 class="problem-card-title">Impacto social reduzido</h3>
+        <p class="problem-card-text">Projetos sociais que poderiam atender mais pessoas acabam travados por processos manuais ultrapassados e sem apoio tecnológico adequado.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SOLUÇÃO -->
+  <section id="solucao">
+    <div class="section-tag">// 02 — Inovação Proposta</div>
+    <h2 class="section-title">Como o ReliefSys resolve isso</h2>
+    <p class="section-body">Desenvolvemos um sistema computacional capaz de auxiliar na organização e priorização de demandas em projetos sociais, utilizando critérios automatizados para classificar solicitações de acordo com urgência e impacto real.</p>
+
+    <div class="priority-demo">
+      <div class="priority-demo-title">// Simulação de triagem automática</div>
+      <div class="priority-row">
+        <div class="priority-dot dot-critical"></div>
+        <span class="priority-label">CRÍTICO</span>
+        <div class="priority-bar-bg"><div class="priority-bar-fill fill-critical"></div></div>
+        <span class="priority-pct">95</span>
+      </div>
+      <div class="priority-row">
+        <div class="priority-dot dot-high"></div>
+        <span class="priority-label">ALTO</span>
+        <div class="priority-bar-bg"><div class="priority-bar-fill fill-high"></div></div>
+        <span class="priority-pct">72</span>
+      </div>
+      <div class="priority-row">
+        <div class="priority-dot dot-medium"></div>
+        <span class="priority-label">MÉDIO</span>
+        <div class="priority-bar-bg"><div class="priority-bar-fill fill-medium"></div></div>
+        <span class="priority-pct">50</span>
+      </div>
+      <div class="priority-row">
+        <div class="priority-dot dot-low"></div>
+        <span class="priority-label">BAIXO</span>
+        <div class="priority-bar-bg"><div class="priority-bar-fill fill-low"></div></div>
+        <span class="priority-pct">28</span>
+      </div>
+    </div>
+
+    <br><br>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Triagem Automática</div>
+        <p class="feature-text">Classificação inteligente das solicitações com base em critérios pré-definidos: urgência, impacto, tempo de espera e perfil do beneficiário.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Gestão de Demandas</div>
+        <p class="feature-text">Painel centralizado com visualização clara de todas as solicitações, status e histórico de atendimentos realizados.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Relatórios e Métricas</div>
+        <p class="feature-text">Dashboards com indicadores de desempenho e relatórios de impacto para apoiar a tomada de decisão dos gestores sociais.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Foco em ONGs Pequenas</div>
+        <p class="feature-text">Desenvolvido para ser simples, acessível e de fácil implementação mesmo por organizações com recursos tecnológicos limitados.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">Abrangência Ampla</div>
+        <p class="feature-text">Não restrito a um tipo de necessidade específica — atende múltiplos tipos de demandas em diferentes contextos sociais.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Lógica de Classificação Própria</div>
+        <p class="feature-text">Algoritmo desenvolvido internamente com critérios específicos para o contexto social, diferente de planilhas ou sistemas genéricos.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COMPARATIVO -->
+  <section id="comparativo">
+    <div class="section-tag">// 03 — Busca de Anterioridade</div>
+    <h2 class="section-title">Diferenciais frente ao mercado</h2>
+    <p class="section-body">Mapeamos as soluções existentes mais próximas do nosso projeto e identificamos onde o ReliefSys avança além delas.</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Solução</th>
+          <th>O que faz</th>
+          <th>Triagem automática</th>
+          <th>Acessível p/ pequenas ONGs</th>
+          <th>Foco social específico</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Salesforce Nonprofit Cloud</strong></td>
+          <td style="color:var(--muted); font-size:0.85rem;">Plataforma robusta para gestão de doações, voluntários e atendimentos</td>
+          <td><span class="tag-x">✗ Não</span></td>
+          <td><span class="tag-x">✗ Complexo e caro</span></td>
+          <td><span class="tag-x">✗ Genérico</span></td>
+        </tr>
+        <tr>
+          <td><strong>Be My Eyes</strong></td>
+          <td style="color:var(--muted); font-size:0.85rem;">Conecta voluntários a pessoas com deficiência visual</td>
+          <td><span class="tag-x">✗ Não</span></td>
+          <td><span class="tag-check">✓ Sim</span></td>
+          <td><span class="tag-x">✗ Só deficiência visual</span></td>
+        </tr>
+        <tr>
+          <td><strong>Airtable (ONGs)</strong></td>
+          <td style="color:var(--muted); font-size:0.85rem;">Planilha avançada para organização de dados e solicitações</td>
+          <td><span class="tag-x">✗ Não</span></td>
+          <td><span class="tag-check">✓ Parcialmente</span></td>
+          <td><span class="tag-x">✗ Genérico</span></td>
+        </tr>
+        <tr style="background: var(--green-glow);">
+          <td><strong style="color: var(--green);">ReliefSys ✦</strong></td>
+          <td style="color:var(--text); font-size:0.85rem;">Sistema de triagem inteligente focado em projetos sociais</td>
+          <td><span class="tag-check">✓ Sim</span></td>
+          <td><span class="tag-check">✓ Sim</span></td>
+          <td><span class="tag-check">✓ Sim</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="section-tag">// 04 — Planejamento</div>
+    <h2 class="section-title">Atividades até o protótipo funcional</h2>
+    <p class="section-body">Cada etapa foi pensada para evoluir o sistema de forma estruturada, garantindo qualidade técnica e alinhamento com as necessidades reais das organizações sociais.</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-title">Concepção e Planejamento</div>
+        <p class="timeline-desc">Definição da problemática, proposta de inovação, busca de anterioridade, levantamento de requisitos e apresentação da 1ª avaliação.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">Especificação Técnica</div>
+        <p class="timeline-desc">Definição da arquitetura do sistema, escolha das tecnologias, modelagem do banco de dados e wireframes das interfaces principais.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">Desenvolvimento do MVP</div>
+        <p class="timeline-desc">Implementação do módulo de cadastro de solicitações, desenvolvimento do algoritmo de triagem automática e criação das interfaces básicas.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">Testes e Validação</div>
+        <p class="timeline-desc">Testes com usuários reais de ONGs, coleta de feedback, ajustes na lógica de priorização e refinamento das interfaces.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-title">Protótipo Funcional Completo</div>
+        <p class="timeline-desc">Integração de todos os módulos, dashboard de métricas, relatórios e apresentação do produto final à banca avaliadora.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- EQUIPE -->
+  <section id="equipe">
+    <div class="section-tag">// 05 — Equipe</div>
+    <h2 class="section-title">Grupo ReliefSys</h2>
+    <p class="section-body">Cinco estudantes de Engenharia da Universidade de Vassouras unidos pelo desafio de transformar a gestão social com tecnologia.</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">👤</div>
+        <div class="team-name">Gabriel Rufino Lopes de Melo</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👤</div>
+        <div class="team-name">Arthur Maranduba Littleton Loureito</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👤</div>
+        <div class="team-name">Carlos Rodrigo Figueredo Santos</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👤</div>
+        <div class="team-name">Arthur Luiz Pereira Peres</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👤</div>
+        <div class="team-name">Davi dos Santos Rodrigues Pedra</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-logo">ReliefSys</div>
+  <div class="footer-info">Grupo ReliefSys</div>
+</footer>
+
+</body>
+</html>
